@@ -113,7 +113,7 @@ function MeteoritesTable() {
                   <TableCell align="right">{row.nametype}</TableCell>
                   <TableCell align="right">{row.recclass}</TableCell>
                   <TableCell align="right">{row.mass}</TableCell>
-                  <TableCell align="right">{row.year.slice(0,4)}</TableCell>
+                  <TableCell align="right">{row.year ? row.year.substring(0,4) : null}</TableCell>
                   <TableCell align="right">{row.reclat}</TableCell>
                   <TableCell align="right">{row.reclong}</TableCell>
                 </TableRow>
