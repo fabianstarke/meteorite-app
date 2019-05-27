@@ -34,9 +34,9 @@ function SearchBar(props){
           placeholder="Search Meteorite"
           onChange={props.search}
           type="text"
-          value={props.searchMeteorite}
+          value={props.value}
         />
-        <IconButton className={classes.iconButton} aria-label="Search">
+        <IconButton onClick={props.onClick}className={classes.iconButton} aria-label="Search">
           <SearchIcon />
         </IconButton>
       </div>
