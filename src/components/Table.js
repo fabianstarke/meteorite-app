@@ -14,14 +14,16 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 
 const useStyles = makeStyles(theme => ({
   root: {
-    width: "100%"
+    width: "100%",
+    textAlign: '-webkit-center',
+
   },
 
   paper: {
     marginTop: theme.spacing(3),
-    width: "100%",
+    width: "90%",
     overflowX: "auto",
-    marginBottom: theme.spacing(2)
+    marginBottom: theme.spacing(1),
   },
   table: {
     minWidth: 650
@@ -33,10 +35,12 @@ function MeteoritesTable() {
   const[data, setData] = useState([]);
   const[query, setQuery] = useState('');
   const [url, setUrl] = useState(
-    "https://data.nasa.gov/resource/gh4g-9sfh.json?$limit=100"
+    "https://data.nasa.gov/resource/gh4g-9sfh.json?$limit=50000"
   );
   const[isLoading, setIsLoading] = useState(false);
-  const[isError, setIsError] = useState(false)
+  const[isError, setIsError] = useState(false);
+  const[page, setPage] = useState(0);
+  const[rowsPerPage, setRowsPerPage] = useState(10)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -45,7 +49,7 @@ function MeteoritesTable() {
       try {
          const result = await axios(url);
       setData(result.data);
-      console.log(result.data[0].year.slice(0,4))
+      console.log(result)
       } catch(error){
         setIsError(true)
       }
@@ -54,19 +58,34 @@ function MeteoritesTable() {
     fetchData();
   }, [url]);
 
+  useEffect(() => {
+    setPage(0)
+  }, [data])
+
+   function handleChangePage(event, newPage) {
+     setPage(newPage);
+   }
+
+   function handleChangeRowsPerPage(event) {
+     setRowsPerPage(parseInt(event.target.value, 10));
+   }
 
   return (
     <div className={classes.root}>
       <SearchBar
         value={query}
         search={e => setQuery(e.target.value)}
-        onClick={() =>
+        onClick={() => 
           setUrl(`https://data.nasa.gov/resource/gh4g-9sfh.json?$q=${query}`)
         }
       />
-      {isError && <h1 style={{ color: 'red', marginTop: 50}}>Something went wrong...</h1>}
+      {isError && (
+        <h1 style={{ color: "red", marginTop: 50 }}>
+          Something went wrong...
+        </h1>
+      )}
       {isLoading ? (
-        <CircularProgress style={{ marginTop: 50}} />
+        <CircularProgress style={{ marginTop: 50 }} />
       ) : (
         <Paper className={classes.paper}>
           <Table className={classes.table} size="small">
@@ -83,7 +102,7 @@ function MeteoritesTable() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {data.map(row => (
+              {data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(row => (
                 <TableRow key={row.name}>
                   <TableCell component="th" scope="row">
                     {row.name}
@@ -94,7 +113,7 @@ function MeteoritesTable() {
                   <TableCell align="right">{row.nametype}</TableCell>
                   <TableCell align="right">{row.recclass}</TableCell>
                   <TableCell align="right">{row.mass}</TableCell>
-                  <TableCell align="right">{row.year}</TableCell>
+                  <TableCell align="right">{row.year.slice(0,4)}</TableCell>
                   <TableCell align="right">{row.reclat}</TableCell>
                   <TableCell align="right">{row.reclong}</TableCell>
                 </TableRow>
@@ -102,18 +121,19 @@ function MeteoritesTable() {
             </TableBody>
           </Table>
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            onChangePage={f => f}
-            count={10}
-            rowsPerPage={10}
-            page={0}
+            count={data.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
             backIconButtonProps={{
               "aria-label": "Previous Page"
             }}
             nextIconButtonProps={{
               "aria-label": "Next Page"
             }}
+            onChangePage={handleChangePage}
+            onChangeRowsPerPage={handleChangeRowsPerPage}
+
           />
         </Paper>
       )}
