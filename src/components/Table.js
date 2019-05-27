@@ -14,9 +14,14 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 
 const useStyles = makeStyles(theme => ({
   root: {
-    width: "100%",
+    width: "100%"
+  },
+
+  paper: {
     marginTop: theme.spacing(3),
-    overflowX: "auto"
+    width: "100%",
+    overflowX: "auto",
+    marginBottom: theme.spacing(2)
   },
   table: {
     minWidth: 650
@@ -63,8 +68,8 @@ function MeteoritesTable() {
       {isLoading ? (
         <CircularProgress style={{ marginTop: 50}} />
       ) : (
-        <Paper>
-          <Table className={classes.table}>
+        <Paper className={classes.paper}>
+          <Table className={classes.table} size="small">
             <TableHead>
               <TableRow>
                 <TableCell>Name</TableCell>
