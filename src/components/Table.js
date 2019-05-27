@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState, useEffect} from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
@@ -8,84 +8,116 @@ import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
 import TablePagination from "@material-ui/core/TablePagination";
 import SearchBar from './SearchBar'
+import axios from "axios";
+import CircularProgress from "@material-ui/core/CircularProgress";
+
 
 const useStyles = makeStyles(theme => ({
   root: {
-    width: "100%",
+    width: "100%"
+  },
+
+  paper: {
     marginTop: theme.spacing(3),
-    overflowX: "auto"
+    width: "100%",
+    overflowX: "auto",
+    marginBottom: theme.spacing(2)
   },
   table: {
     minWidth: 650
   }
 }));
 
-function createData(name, id, nameType, recClass, fall, year, latitude, longitude) {
-  return { name, id, nameType, recClass, fall, year, latitude, longitude };
-}
-
-const rows = [
-  createData("Aachen", 1, "Valid", "L5", 21, "Fell", 1880, 50.775, 6.083),
-  createData("Aarhus", 2, "Valid", "H6", 720, "Fell", 1950, 50.775, 6.083),
-  createData("Abee", 6, "Valid", "EH4", 10700, "Fell", 1975, 50.775, 6.083),
-  createData("Acapulco", 10, "Valid", "L6", 480, "Fell", 1614, 50.775, 6.083),
-  createData("Achiras", 369, "Valid", "H4", 310, "Fell", 1830, 50.775, 6.083),
-  createData("Adhi Kot", 398, 'Valid', 'LL3-6', 250, 'Fell', 1919, 50.775, 6.083),
-  createData("Agen", 7, 'Valid', 'L5', 27, 'Fell', 1930, 50.775, 6.083),
-];
-
 function MeteoritesTable() {
   const classes = useStyles();
+  const[data, setData] = useState([]);
+  const[query, setQuery] = useState('');
+  const [url, setUrl] = useState(
+    "https://data.nasa.gov/resource/gh4g-9sfh.json?$limit=100"
+  );
+  const[isLoading, setIsLoading] = useState(false);
+  const[isError, setIsError] = useState(false)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsError(false);
+      setIsLoading(true);
+      try {
+         const result = await axios(url);
+      setData(result.data);
+      console.log(result.data[0].year.slice(0,4))
+      } catch(error){
+        setIsError(true)
+      }
+      setIsLoading(false)
+    }; 
+    fetchData();
+  }, [url]);
+
 
   return (
-    <Paper className={classes.root}>
-    <SearchBar />
-      <Table className={classes.table}>
-        <TableHead>
-          <TableRow>
-            <TableCell>Name</TableCell>
-            <TableCell align="right">ID</TableCell>
-            <TableCell align="right">Name Type</TableCell>
-            <TableCell align="right">Rec Class</TableCell>
-            <TableCell align="right">Fall</TableCell>
-            <TableCell align="right">Year</TableCell>
-            <TableCell align="right">Latitude</TableCell>
-            <TableCell align="right">Longitude</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {rows.map(row => (
-            <TableRow key={row.name}>
-              <TableCell component="th" scope="row">
-                {row.name}
-              </TableCell>
-              <TableCell component="th" scope="row">
-                {row.id}
-              </TableCell>
-              <TableCell align="right">{row.nameType}</TableCell>
-              <TableCell align="right">{row.recClass}</TableCell>
-              <TableCell align="right">{row.fall}</TableCell>
-              <TableCell align="right">{row.year}</TableCell>
-              <TableCell align="right">{row.latitude}</TableCell>
-              <TableCell align="right">{row.longitude}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      <TablePagination
-        rowsPerPageOptions={[5, 10, 25]}
-        component="div"
-        count={rows.length}
-        rowsPerPage={10}
-        page={3}
-        backIconButtonProps={{
-          "aria-label": "Previous Page"
-        }}
-        nextIconButtonProps={{
-          "aria-label": "Next Page"
-        }}
+    <div className={classes.root}>
+      <SearchBar
+        value={query}
+        search={e => setQuery(e.target.value)}
+        onClick={() =>
+          setUrl(`https://data.nasa.gov/resource/gh4g-9sfh.json?$q=${query}`)
+        }
       />
-    </Paper>
+      {isError && <h1 style={{ color: 'red', marginTop: 50}}>Something went wrong...</h1>}
+      {isLoading ? (
+        <CircularProgress style={{ marginTop: 50}} />
+      ) : (
+        <Paper className={classes.paper}>
+          <Table className={classes.table} size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Name</TableCell>
+                <TableCell align="right">ID</TableCell>
+                <TableCell align="right">Name Type</TableCell>
+                <TableCell align="right">Rec Class</TableCell>
+                <TableCell align="right">Mass</TableCell>
+                <TableCell align="right">Year</TableCell>
+                <TableCell align="right">Latitude</TableCell>
+                <TableCell align="right">Longitude</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {data.map(row => (
+                <TableRow key={row.name}>
+                  <TableCell component="th" scope="row">
+                    {row.name}
+                  </TableCell>
+                  <TableCell component="th" scope="row">
+                    {row.id}
+                  </TableCell>
+                  <TableCell align="right">{row.nametype}</TableCell>
+                  <TableCell align="right">{row.recclass}</TableCell>
+                  <TableCell align="right">{row.mass}</TableCell>
+                  <TableCell align="right">{row.year}</TableCell>
+                  <TableCell align="right">{row.reclat}</TableCell>
+                  <TableCell align="right">{row.reclong}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            onChangePage={f => f}
+            count={10}
+            rowsPerPage={10}
+            page={0}
+            backIconButtonProps={{
+              "aria-label": "Previous Page"
+            }}
+            nextIconButtonProps={{
+              "aria-label": "Next Page"
+            }}
+          />
+        </Paper>
+      )}
+    </div>
   );
 }
 
