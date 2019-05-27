@@ -7,6 +7,7 @@ import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
 import TablePagination from "@material-ui/core/TablePagination";
+import SearchBar from './SearchBar'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -33,11 +34,12 @@ const rows = [
   createData("Agen", 7, 'Valid', 'L5', 27, 'Fell', 1930, 50.775, 6.083),
 ];
 
-function SimpleTable() {
+function MeteoritesTable() {
   const classes = useStyles();
 
   return (
     <Paper className={classes.root}>
+    <SearchBar />
       <Table className={classes.table}>
         <TableHead>
           <TableRow>
@@ -87,4 +89,4 @@ function SimpleTable() {
   );
 }
 
-export default SimpleTable;
+export default MeteoritesTable;

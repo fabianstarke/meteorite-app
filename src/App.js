@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import SimpleTable from './Table'
+import MeteoritesTable from './components/Table'
 import nasa from './nasa.png'
 
 function App() {
@@ -10,7 +10,7 @@ function App() {
         <div> METEORITE EXPLORER</div>
         <img src={nasa} alt="logo" height="60" />
       </header>
-      <SimpleTable />
+      <MeteoritesTable />
     </div>
   );
 }
